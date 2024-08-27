@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My First Web Page</title>
+    <style>
+        header {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #date-div {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>Hello World</header>
+    <p>Your Name Here</p>
+
+    <div id="date-div"></div>
+
+    <script>
+        function getCurrentDate() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return today.toLocaleDateString(undefined, options);
+        }
+
+        document.getElementById('date-div').innerText = `Today's Date: ${getCurrentDate()}`;
+    </script>
+
+</body>
+</html>
