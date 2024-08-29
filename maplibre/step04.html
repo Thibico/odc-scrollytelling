@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maplibre with Hover Interaction</title>
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { width: 100vw; height: 100vh; }
+        #province-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            min-width: 200px;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="province-info"></div> <!-- This will display the province name -->
+
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+            center: [104.9282, 11.5564], // Phnom Penh
+            zoom: 6.5
+        });
+
+        map.on('load', function () {
+            // Add the GeoJSON source for provinces
+            map.addSource('provinces', {
+                type: 'geojson',
+                data: '../cambodia-provinces.json' // Path to your GeoJSON file
+            });
+
+            // Add a polygon layer to display the provinces
+            map.addLayer({
+                id: 'provinces-layer',
+                type: 'fill',
+                source: 'provinces',
+                layout: {},
+                paint: {
+                    'fill-color': '#888', // Gray color for the provinces
+                    'fill-opacity': 0.5, // 50% transparency
+                }
+            });
+
+            // Add a line layer to display the borders
+            map.addLayer({
+                id: 'provinces-borders',
+                type: 'line',
+                source: 'provinces',
+                layout: {},
+                paint: {
+                  'line-color': '#627BC1',
+                  'line-width': 2
+                }
+            });
+
+            // Add hover interaction for provinces
+            map.on('mousemove', 'provinces-layer', (e) => {
+                const provinceName = e.features[0].properties.HRName;
+                document.getElementById('province-info').innerText = provinceName;
+            });
+
+            map.on('mouseleave', 'provinces-layer', () => {
+                document.getElementById('province-info').innerText = '';
+            });
+        });
+    </script>
+</body>
+</html>

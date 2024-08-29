@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maplibre Map of Cambodia</title>
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { width: 100vw; height: 100vh; } /* Full-screen map */
+    </style>
+</head>
+<body>
+    <div id="map"></div> <!-- This is where the map will be rendered -->
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+    <script>
+        // JavaScript for initializing the map goes here
+        const map = new maplibregl.Map({
+            container: 'map', // The id of the div where the map will render
+            style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', // A basic tile style for the map
+            center: [104.9282, 11.5564], // Longitude and latitude of Phnom Penh
+            zoom: 6.5 // Zoom level to show all of Cambodia
+        });
+
+        const cities = [
+            { name: 'Phnom Penh', coordinates: [104.9282, 11.5564] },
+            { name: 'Battambang', coordinates: [103.1996, 13.0957] },
+            { name: 'Siem Reap', coordinates: [103.8552, 13.3671] }
+        ];
+
+        cities.forEach(city => {
+            new maplibregl.Marker({ color: 'red' })
+                .setLngLat(city.coordinates) // Set the marker's position using the city's coordinates
+                .setPopup(new maplibregl.Popup().setText(city.name)) // Optional: Add a popup with the city's name
+                .addTo(map); // Add the marker to the map
+        });
+    </script>
+</body>
+</html>

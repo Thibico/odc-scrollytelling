@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrollama Basic Example</title>
+  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { 
+      width: 100vw; 
+      height: 100vh; 
+      position: fixed; 
+      z-index: 0;
+      top: 0;
+    }
+    #steps {
+      position: relative; 
+      z-index: 1;
+      margin-top: 40vh;
+    }
+    .step {
+      height: 100vh; /* Each step will take up the full height of the viewport */
+      margin: 50px;
+      font-size: 24px;
+      width: 300px;
+      /* background: lightgray; */
+    }
+    .textbox {
+      background-color: #201b1b;
+      color: aliceblue;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="steps">
+    <div class="step">
+      <div class="textbox">Introduction</div>
+    </div>
+    <div class="step">
+      <div class="textbox">
+        Phnom Penh, the capital and largest city of Cambodia, is situated at the confluence of the Mekong and Tonle Sap rivers.
+      </div>
+    </div>
+    <div class="step">
+      <div class="textbox">
+        Battambang, Cambodia's second-largest city, is located in the northwest region and is known for its relaxed atmosphere and well-preserved colonial architecture. The city is an agricultural hub, often referred to as the "rice bowl" of Cambodia.
+      </div>
+    </div>
+    <div class="step">
+      <div class="textbox">
+        Siem Reap is Cambodia’s gateway to the world-renowned Angkor Wat temple complex, a UNESCO World Heritage site and one of the most iconic historical landmarks in Southeast Asia.
+      </div>
+    </div>  
+  </div>
+  
+
+  <!-- Scrollama library -->
+  <script src="https://unpkg.com/scrollama"></script>
+  <!-- Maplibre library -->
+  <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+
+
+  <script>
+    // Initialize Scrollama
+    const scroller = scrollama();
+
+    // Set up Scrollama
+    scroller
+      .setup({
+        step: ".step",  // Class of the elements to track
+        offset: 0.5,    // Trigger the event when the element is halfway into the viewport
+        debug: false    // Set to true to show scroll-trigger debugging (optional)
+      })
+      .onStepEnter(response => {
+        // Fly to each city based on scroll position
+        if (response.index === 1) {
+          map.flyTo({ center: [104.9282, 11.5564], zoom: 12 }); // Phnom Penh
+        } else if (response.index === 2) {
+          map.flyTo({ center: [103.1996, 13.0957], zoom: 12 }); // Battambang
+        } else if (response.index === 3) {
+          map.flyTo({ center: [103.8552, 13.3671], zoom: 12 }); // Siem Reap
+        } else {
+          map.flyTo({center: [104.9282, 11.5564], zoom: 6 }); // Zoom Out})
+        }
+      });
+
+
+      const map = new maplibregl.Map({
+        container: 'map', 
+        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', 
+        center: [104.9282, 11.5564], // Phnom Penh
+        zoom: 6
+      });
+
+      // City data with population
+      const cities = [
+        { name: 'Phnom Penh', coordinates: [104.9282, 11.5564], population: 2282000 },
+        { name: 'Battambang', coordinates: [103.1996, 13.0957], population: 119251 },
+        { name: 'Siem Reap', coordinates: [103.8552, 13.3671], population: 245494 }
+      ];
+
+      // Load the map and add the city circles
+      map.on('load', function() {
+        map.addSource('cities', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: cities.map(city => ({
+              type: 'Feature',
+              properties: {
+                name: city.name,
+                population: city.population
+              },
+              geometry: {
+                type: 'Point',
+                coordinates: city.coordinates
+              }
+            }))
+          }
+        });
+
+        map.scrollZoom.disable(); // Disables zooming with the scroll wheel
+
+        map.addLayer({
+          id: 'city-circles',
+          type: 'circle',
+          source: 'cities',
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['get', 'population'], 100000, 5, 1500000, 15],
+            'circle-color': '#FF5722',
+            'circle-opacity': 0.8
+          }
+        });
+      });
+
+  </script>
+
+</body>
+</html>

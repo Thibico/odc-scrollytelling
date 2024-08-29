@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrollama and Maplibre: Filtering SEZs by Year Range</title>
+  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    #map { 
+      width: 100vw; 
+      height: 100vh; 
+      position: fixed; 
+      z-index: 0;
+      top: 0;
+    }
+    #steps {
+      position: relative; 
+      z-index: 1;
+      margin-top: 40vh;
+    }
+    .step {
+      height: 100vh; /* Each step will take up the full height of the viewport */
+      margin: 50px;
+      font-size: 24px;
+      width: 300px;
+      /* background: lightgray; */
+    }
+    .textbox {
+      background-color: #201b1b;
+      color: aliceblue;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div> <!-- Fixed map will stay in the background -->
+  
+  <!-- Scrollable step sections -->
+  <div id="steps">
+    <div class="step" data-scene="0">
+      <div class="textbox">
+        SEZs Established Before 2000
+      </div>
+    </div>
+    <div class="step" data-scene="1">
+      <div class="textbox">
+        SEZs Established Between 2000 and 2010
+      </div>
+    </div>
+    <div class="step" data-scene="2">
+      <div class="textbox">
+        SEZs Established Between 2010 and 2020
+      </div>
+    </div>
+    <div class="step" data-scene="3">
+      <div class="textbox">
+        SEZs Established After 2020
+      </div>
+    </div>  
+  </div>
+
+
+  <!-- Scrollama and Maplibre scripts -->
+  <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
+
+  <script>
+    // Initialize the Maplibre map
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+      center: [104.9282, 11.5564], // Center on Phnom Penh
+      zoom: 6
+    });
+
+    // Load GeoJSON data and add it as a circle layer to the map
+    map.on('load', function() {
+      map.addSource('sez', {
+        type: 'geojson',
+        data: '../cambodia-sez-with-year.json' // Path to your modified GeoJSON file
+      });
+
+      map.addLayer({
+        id: 'sez-layer',
+        type: 'circle',
+        source: 'sez',
+        paint: {
+          'circle-radius': 6,
+          'circle-color': '#FF5722',
+          'circle-opacity': 0.8
+        }
+      });
+    });
+
+    map.scrollZoom.disable(); // Disables zooming with the scroll wheel
+
+    // Initialize Scrollama
+    const scroller = scrollama();
+
+    // Set up Scrollama to track scroll steps and filter map data by year range
+    scroller
+      .setup({
+        step: ".step",
+        offset: 0.5,
+        debug: false
+      })
+      .onStepEnter(response => {
+        const scene = response.element.getAttribute('data-scene');
+        let filter = ['all'];
+
+        if (scene === '0') {
+          filter.push(['<', ['get', 'year'], 2000]);
+        } else if (scene === '1') {
+          filter.push(['all', ['>=', ['get', 'year'], 2000], ['<', ['get', 'year'], 2010]]);
+        } else if (scene === '2') {
+          filter.push(['all', ['>=', ['get', 'year'], 2010], ['<', ['get', 'year'], 2020]]);
+        } else if (scene === '3') {
+          filter.push(['>=', ['get', 'year'], 2020]);
+        }
+
+        map.setFilter('sez-layer', filter);
+      });
+  </script>
+
+</body>
+</html>

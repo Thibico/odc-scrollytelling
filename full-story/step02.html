@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrollama and Flourish: Triggering Story Transitions</title>
+  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Container for the Flourish story */
+    #flourish-container {
+      width: 50vw; 
+      height: 100vh; 
+      position: fixed; 
+      z-index: 0;
+      top: 0;
+    }
+
+    /* Step divs that trigger Flourish transitions */
+    #steps {
+      position: relative; 
+      z-index: 1;
+      margin-top: 40vh;
+    }
+    .step {
+      height: 100vh; /* Each step will take up the full height of the viewport */
+      margin: 50px;
+      font-size: 24px;
+      width: 300px;
+      /* background: lightgray; */
+    }
+    .textbox {
+      background-color: #201b1b;
+      color: aliceblue;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+
+  <!-- Embed the Flourish story -->
+  <div id="flourish-container">
+    <iframe id="flourish-iframe" src="https://flo.uri.sh/story/2550405/embed#slide-0" width="100%" height="600px" frameborder="0" scrolling="no"></iframe>
+  </div>
+  
+
+  <!-- Scrollable step sections -->
+  <div id="steps">
+    <div class="step" data-scene="0">
+      <div class="textbox">
+        SEZs Per Province
+      </div>
+    </div>
+    <div class="step" data-scene="1">
+      <div class="textbox">
+        SEZs by Capital Investment
+      </div>
+  </div>
+  
+  <!-- Scrollama script -->
+  <script src="https://unpkg.com/scrollama"></script>
+
+  <script>
+    // Initialize Scrollama
+    const scroller = scrollama();
+
+    const flourishStoryURL = "https://flo.uri.sh/story/2550405/embed#slide-"
+
+    // Set up Scrollama to track scroll steps and trigger Flourish transitions
+    scroller
+      .setup({
+        step: ".step",
+        offset: 0.5,
+        debug: false
+      })
+      .onStepEnter(response => {
+        const scene = response.element.getAttribute('data-scene');
+        document.getElementById('flourish-iframe')
+          .setAttribute('src', flourishStoryURL + scene);
+      });
+  </script>
+
+</body>
+</html>

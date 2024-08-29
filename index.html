@@ -1,52 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <title>My First Web Page</title>
-      <style>
-        header {
-          text-align: center;
-          font-size: 2em;
-          margin-top: 40px;
-          margin-bottom: 10px;
-          margin-left: 20px;
-          margin-right: 20px;
-          padding: 10px;
-        }
-        p {
-          text-align: center;
-          font-size: 1.2em;
-          color: #b73030;
-          font-family: Arial;
-        }
-        #date-div {
-          color:#4b2db8;
-          border: #4b2db8 1px solid;
-          padding: 10px;
-          position: fixed;
-          top: 30px;
-          right: 20px;
-          background-color: white;
-          border-radius: 5px;
-        }
-      </style>
-  </head>
-  <body>
-    <header>Hello World</header>
-    <p>Your Name</p>  
-    <div id="date-div"></div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrollama Basic Example</title>
+  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { 
+      width: 100vw; 
+      height: 100vh;
+      position: fixed;
+      top: 0;
+    }
+    #steps {
+      position: relative;
+    }
+    .step {
+      height: 100vh;
+    }
+    .textbox {
+      width: 300px;
+      background-color: #201b1b;
+      color: aliceblue;
+      font-size: 1.2em;
+      padding: 20px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <div id="steps">
+    <div class="step">
+      <div class="textbox">
+        Introduction
+      </div>  
+    </div>
+    <div class="step">
+      <div class="textbox">
+        Phnom Penh
+      </div>  
+    </div>
+    <div class="step">
+      <div class="textbox">
+        Battambang
+      </div>  
+    </div>
+    <div class="step">
+      <div class="textbox">
+        Siem Reap
+      </div>  
+    </div>
+  </div>
+
+  <!-- Scrollama library -->
+  <script src="https://unpkg.com/scrollama"></script>
+
+  <!-- Maplibre library -->
+  <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+
 
   <script>
-    function getCurrentDate() {
-        const today = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return today.toLocaleDateString(undefined, options);
-    }
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+      center: [104.9282, 11.5564],
+      zoom: 6
+    })
 
-    console.log("today's date",getCurrentDate());
+    // City data with population
+    const cities = [
+      { name: 'Phnom Penh', coordinates: [104.9282, 11.5564], population: 2282000 },
+      { name: 'Battambang', coordinates: [103.1996, 13.0957], population: 119251 },
+      { name: 'Siem Reap', coordinates: [103.8552, 13.3671], population: 245494 }
+    ];
 
-    document.getElementById("date-div").innerText = "Today's date is " + getCurrentDate();
+    let citiesGeoJsonFeatures = cities.map(city => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: city.coordinates
+        },
+        properties: {
+          name: city.name,
+          population: city.population
+        }
+      }
+    })
 
+    console.log("cities",cities);
+    console.log("cities GeoJSON format",citiesGeoJsonFeatures)
+
+    map.scrollZoom.disable();
+
+    map.on('load', function () {
+
+      map.addSource('cities', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: citiesGeoJsonFeatures
+        }
+      })
+
+      map.addLayer({
+        id: 'city-circles',
+        type: 'circle',
+        source: 'cities',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['get', 'population'], 100000, 5, 10000000, 100],
+          'circle-color': '#ff0000',
+          'circle-opacity': 0.8
+        }
+      })
+
+    })
+
+    // Initilise Scrollama
+    const scoller = scrollama();
+
+    // Set up Scrollama
+    scoller
+      .setup({
+        step: ".step",
+        offset: 0.5
+      })
+      .onStepEnter(response => {
+        if (response.index === 1) {
+          map.flyTo({ center: [104.9282, 11.5564], zoom: 12 }); // Phnom Penh
+        } else if (response.index === 2) {
+          map.flyTo({ center: [103.1996, 13.0957], zoom: 12 }); // Battambang
+        } else if (response.index === 3) {
+          map.flyTo({ center: [103.8552, 13.3671], zoom: 12 }); // Siem Reap
+        } else {
+          map.flyTo({center: [104.9282, 11.5564], zoom: 6 }); // Zoom Out})
+        }
+      })
+    
   </script>
+
+</body>
 </html>

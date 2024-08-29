@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrollama Basic Example</title>
+  <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 0; }
+    .step {
+      height: 100vh; /* Each step will take up the full height of the viewport */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+    }
+    .textbox {
+      background-color: #f8f8f8;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="step">
+    <div class="textbox">Step 1: Introduction</div>
+  </div>
+  <div class="step">
+    <div class="textbox">Step 2: Data Overview</div>
+  </div>
+  <div class="step">
+    <div class="textbox">Step 3: Conclusion</div>
+  </div>
+
+  <!-- Scrollama library -->
+  <script src="https://unpkg.com/scrollama"></script>
+
+  <script>
+    // Initialize Scrollama
+    const scroller = scrollama();
+
+    // Set up Scrollama
+    scroller
+      .setup({
+        step: ".step",  // Class of the elements to track
+        offset: 0.5,    // Trigger the event when the element is halfway into the viewport
+        debug: false    // Set to true to show scroll-trigger debugging (optional)
+      })
+      .onStepEnter(response => {
+        // Change background color based on which step is currently in view
+        if (response.index === 0) {
+          document.body.style.backgroundColor = 'lightblue'
+        } else if (response.index === 1) {
+          document.body.style.backgroundColor = 'lightgreen'
+        } else if (response.index === 2) {
+          document.body.style.backgroundColor = 'lightblue'
+        } else {
+          document.body.style.backgroundColor = 'lightgreen'
+        }
+      });
+  </script>
+
+</body>
+</html>
